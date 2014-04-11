@@ -1,25 +1,21 @@
-FROM debian:wheezy
+FROM ubuntu:latest
 
 MAINTAINER Alexander Schneider "alexander.schneider@jankowfsky.com"
 
 # Upgrade system
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update;apt-get -y upgrade
+RUN apt-get update # && apt-get -y upgrade
 
 # Setup system and install tools
 RUN echo "initscripts hold" | dpkg --set-selections
 RUN apt-get -qqy install libreadline-gplv2-dev libfreetype6 apt-utils dialog
 RUN echo "Europe/Berlin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 RUN echo 'alias ll="ls -lah --color=auto"' >> /etc/bash.bashrc
-RUN apt-get -qqy install openssh-server passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim locales net-tools
+RUN apt-get -qqy install openssh-server passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim locales net-tools python-software-properties
 RUN locale-gen --purge de_DE.UTF-8
 
 # Add user
-RUN useradd dev -m -s /bin/bash
-RUN echo dev:dev | chpasswd
-RUN usermod -a -G sudo dev
-RUN echo 'dev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/dev
-RUN chmod 0440 /etc/sudoers.d/dev
+RUN echo 'root:root' | chpasswd
 
 # Configure git
 ADD conf/git/.gitconfig /home/dev/.gitconfig
@@ -40,22 +36,47 @@ RUN apt-get -qqy install mysql-server mysql-common mysql-client
 RUN service mysql start;mysqladmin -uroot password root;service mysql stop
 
 # Add latest php version
-# RUN echo "deb http://packages.dotdeb.org wheezy-php55 all" >> /etc/apt/sources.list
-# RUN echo "deb http://packages.dotdeb.org wheezy all" >> /etc/apt/sources.list
-# RUN echo "deb-src http://packages.dotdeb.org wheezy-php55 all" >> /etc/apt/sources.list
-# RUN wget http://www.dotdeb.org/dotdeb.gpg
-# RUN apt-key add dotdeb.gpg
-# RUN apt-get update
+RUN add-apt-repository ppa:ondrej/php5 && apt-get update
 
 # PHP
-RUN apt-get -qqy install libapache2-mod-php5 php5 php5-cli php5-mysql php5-curl php5-dev php5-gd php-pear
+RUN apt-get -qqy install libapache2-mod-php5 php5 php5-cli php5-mysql php5-curl php5-dev php5-gd php-pear php-apc php5-xdebug
+
+# Setup xdebug
+RUN echo "xdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini
+RUN echo "xdebug.remote_autostart=0" >> /etc/php5/mods-available/xdebug.ini
+RUN echo "xdebug.remote_connect_back=1" >> /etc/php5/mods-available/xdebug.ini
+RUN echo "xdebug.remote_port=9000" >> /etc/php5/mods-available/xdebug.ini
 
 # PhpMyAdmin
-RUN mkdir -p /root/phpmyadmin
-ADD conf/phpmyadmin/config.inc.php /root/phpmyadmin/config.inc.php
-ADD scripts/build_phpmyadmin.sh /root/phpmyadmin/build_phpmyadmin.sh
-RUN sh /root/phpmyadmin/build_phpmyadmin.sh 4.1.11
-ADD conf/phpmyadmin/phpmyadmin.conf /etc/apache2/conf.d/phpmyadmin.conf
+RUN mysqld & \
+    service apache2 start; \
+    sleep 5; \
+    printf y\\n\\n\\n1\\n | apt-get install -y phpmyadmin; \
+    sleep 15; \
+    mysqladmin -u root shutdown
+
+RUN sed -i "0,/\/\/ \$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;/{s#// \$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;#\$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;#g}" /etc/phpmyadmin/config.inc.php
+RUN sed -i "/^[ ]*\$cfg\['Servers'\]\[\$i\]\['host'\]/a\\\$cfg\['Servers'\]\[\$i\]\['hide_db'\] = '(information_schema|performance_schema|phpmyadmin|mysql|test)';" /etc/phpmyadmin/config.inc.php
+RUN ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-enabled
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+
+# Install phpunit
+RUN pear config-set auto_discover 1 && pear install pear.phpunit.de/PHPUnit
+
+# Install ruby
+RUN apt-get -y install ruby rubygems
+
+# Install sass
+RUN gem install sass
+
+# Nodejs + NPM
+RUN add-apt-repository ppa:chris-lea/node.js && apt-get update
+RUN apt-get install -y nodejs
+
+# Install bower
+RUN npm install -g bower
 
 # Add supervisor config
 ADD conf/supervisor/debian-lamp.conf /etc/supervisor/conf.d/debian-lamp.conf
