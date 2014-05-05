@@ -7,5 +7,5 @@ docker build -t <yourname>/phpdev https://github.com/GM-Alex/docker-phpdev
 
 ## Run
 ```
-docker run -d --name <containername> -v /home/alex/PhpstormProjects/tfm/:/var/www/:rw <yourname>/phpdev
+docker run -d --name <containername> -v <yourappfolder>:/var/www:rw <yourname>/phpdev
 ```

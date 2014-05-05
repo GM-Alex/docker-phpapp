@@ -4,26 +4,32 @@ MAINTAINER Alexander Schneider "alexander.schneider@jankowfsky.com"
 
 # Upgrade system
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update # && apt-get -y upgrade
+RUN apt-get update
 
 # Setup system and install tools
 RUN echo "initscripts hold" | dpkg --set-selections
 RUN apt-get -qqy install libreadline-gplv2-dev libfreetype6 apt-utils dialog
 RUN echo "Europe/Berlin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 RUN echo 'alias ll="ls -lah --color=auto"' >> /etc/bash.bashrc
-RUN apt-get -qqy install openssh-server passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim locales net-tools software-properties-common python-software-properties
+RUN apt-get -qqy install passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim net-tools software-properties-common python-software-properties
+
+# Set locale
+RUN apt-get -qqy install locales
 RUN locale-gen --purge de_DE de_DE.UTF-8
 RUN locale-gen --purge en_US en_US.UTF-8
 RUN dpkg-reconfigure locales
 ENV LC_ALL en_US.UTF-8
 
-# Add user
-RUN echo 'root:root' | chpasswd
+# Setup ssh
+RUN apt-get -qqy install openssh-server
+RUN mkdir -p /var/run/sshd
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config
+RUN sed -ri 's/PermitRootLogin without-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+RUN echo 'root:root' |chpasswd
 
 # Configure git
 ADD conf/git/.gitconfig /home/dev/.gitconfig
-
-RUN mkdir -p /var/run/sshd && mkdir /home/dev/.ssh && chmod 700 /home/dev/.ssh
 
 # Generate a host key before packing.
 RUN service ssh start; service ssh stop
@@ -33,7 +39,7 @@ RUN apt-get -qqy install apache2-mpm-prefork apache2-utils
 RUN a2enmod rewrite
 RUN mkdir /etc/apache2/conf.d/
 RUN echo "ServerName localhost" | tee /etc/apache2/conf.d/fqdn
-ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default
+ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
 RUN apt-get -qqy install mysql-server mysql-common mysql-client
