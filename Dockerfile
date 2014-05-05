@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:14.04
 
 MAINTAINER Alexander Schneider "alexander.schneider@jankowfsky.com"
 
@@ -11,8 +11,11 @@ RUN echo "initscripts hold" | dpkg --set-selections
 RUN apt-get -qqy install libreadline-gplv2-dev libfreetype6 apt-utils dialog
 RUN echo "Europe/Berlin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 RUN echo 'alias ll="ls -lah --color=auto"' >> /etc/bash.bashrc
-RUN apt-get -qqy install openssh-server passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim locales net-tools python-software-properties
-RUN locale-gen --purge de_DE.UTF-8
+RUN apt-get -qqy install openssh-server passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim locales net-tools software-properties-common python-software-properties
+RUN locale-gen --purge de_DE de_DE.UTF-8
+RUN locale-gen --purge en_US en_US.UTF-8
+RUN dpkg-reconfigure locales
+ENV LC_ALL en_US.UTF-8
 
 # Add user
 RUN echo 'root:root' | chpasswd
@@ -28,12 +31,13 @@ RUN service ssh start; service ssh stop
 # Apache
 RUN apt-get -qqy install apache2-mpm-prefork apache2-utils
 RUN a2enmod rewrite
+RUN mkdir /etc/apache2/conf.d/
 RUN echo "ServerName localhost" | tee /etc/apache2/conf.d/fqdn
 ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default
 
 # Mysql
 RUN apt-get -qqy install mysql-server mysql-common mysql-client
-RUN service mysql start;mysqladmin -uroot password root;service mysql stop
+#RUN service mysql start;mysqladmin -uroot password root;service mysql stop
 
 # Add latest php version
 RUN add-apt-repository ppa:ondrej/php5 && apt-get update
@@ -66,7 +70,7 @@ RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/lo
 RUN pear config-set auto_discover 1 && pear install pear.phpunit.de/PHPUnit
 
 # Install ruby
-RUN apt-get -y install ruby rubygems
+RUN apt-get -y install ruby
 
 # Install sass
 RUN gem install sass
