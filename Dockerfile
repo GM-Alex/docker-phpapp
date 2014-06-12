@@ -43,7 +43,6 @@ ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
 RUN apt-get -qqy install mysql-server mysql-common mysql-client
-#RUN service mysql start;mysqladmin -uroot password root;service mysql stop
 
 # Add latest php version
 RUN add-apt-repository ppa:ondrej/php5 && apt-get update
@@ -58,16 +57,38 @@ RUN echo "xdebug.remote_connect_back=1" >> /etc/php5/mods-available/xdebug.ini
 RUN echo "xdebug.remote_port=9000" >> /etc/php5/mods-available/xdebug.ini
 
 # PhpMyAdmin
-RUN mysqld & \
-    service apache2 start; \
-    sleep 5; \
-    printf y\\n\\n\\n1\\n | apt-get install -y phpmyadmin; \
-    sleep 15; \
-    mysqladmin -u root shutdown
-
+RUN apt-get install -y phpmyadmin
 RUN sed -i "0,/\/\/ \$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;/{s#// \$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;#\$cfg\['Servers'\]\[\$i\]\['AllowNoPassword'\] = TRUE;#g}" /etc/phpmyadmin/config.inc.php
 RUN sed -i "/^[ ]*\$cfg\['Servers'\]\[\$i\]\['host'\]/a\\\$cfg\['Servers'\]\[\$i\]\['hide_db'\] = '(information_schema|performance_schema|phpmyadmin|mysql|test)';" /etc/phpmyadmin/config.inc.php
 RUN ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-enabled
+
+# Install php brew
+RUN apt-get update
+RUN apt-get build-dep -y --fix-missing php5
+RUN apt-get install -y php5 php5-dev php-pear autoconf automake curl build-essential \
+    libxslt1-dev re2c libxml2 libxml2-dev php5-cli bison libbz2-dev libreadline-dev \
+    libfreetype6 libfreetype6-dev libpng12-0 libpng12-dev libjpeg-dev libjpeg8-dev libjpeg8  libgd-dev libgd3 libxpm4 \
+    libssl-dev openssl \
+    gettext libgettextpo-dev libgettextpo0 \
+    libicu-dev \
+    libmhash2 libmhash-dev \
+    libmcrypt4 libmcrypt-dev \
+    libpcre3-dev libpcre++-dev
+#RUN wget http://launchpadlibrarian.net/140087283/libbison-dev_2.7.1.dfsg-1_amd64.deb && dpkg -i libbison-dev_2.7.1.dfsg-1_amd64.deb
+#RUN wget http://launchpadlibrarian.net/140087282/bison_2.7.1.dfsg-1_amd64.deb && dpkg -i bison_2.7.1.dfsg-1_amd64.deb
+RUN wget  http://launchpadlibrarian.net/121520545/libbison-dev_2.6.2.dfsg-1_amd64.deb && dpkg -i libbison-dev_2.6.2.dfsg-1_amd64.deb
+RUN wget http://launchpadlibrarian.net/121520544/bison_2.6.2.dfsg-1_amd64.deb && dpkg -i bison_2.6.2.dfsg-1_amd64.deb
+ADD conf/php/phpbrew /usr/bin/phpbrew
+RUN chmod +x /usr/bin/phpbrew
+ADD conf/php/phpbrewconfig.yaml /tmp/config.yaml
+RUN phpbrew init --cf=/tmp/config.yaml
+RUN ln -s /.phpbrew /root/.phpbrew
+
+# Install php version
+RUN phpbrew install 5.4 +dev +dbs && phpbrew ext install --pv 5.4 +dev
+RUN phpbrew install 5.3 +dev +dbs && phpbrew ext install --pv 5.3 +dev
+ADD conf/php/php-5.2.patch /tmp/php-5.2.patch
+RUN phpbrew install --old --patch /tmp/php-5.2.patch 5.2 +dev -- --with-libdir=/lib/x86_64-linux-gnu
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
@@ -91,6 +112,6 @@ RUN npm install -g bower
 # Add supervisor config
 ADD conf/supervisor/debian-lamp.conf /etc/supervisor/conf.d/debian-lamp.conf
 
-EXPOSE 22 80
+EXPOSE 22 80 3306
 
 CMD ["/usr/bin/supervisord", "-n"]

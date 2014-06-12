@@ -1,0 +1,41 @@
+virtualVariants:
+    dev:
+        intl:
+        cgi:
+        bcmath:
+        bz2:
+        calendar:
+        cli:
+        ctype:
+        dom:
+        fileinfo:
+        filter:
+        ipc:
+        json:
+        mbregex:
+        mbstring:
+        mhash:
+        mcrypt:
+        pcntl:
+        pcre:
+        pdo:
+        phar:
+        posix:
+        readline:
+        sockets:
+        tokenizer:
+        xml:
+        curl:
+        zip:
+        iconv:
+        openssl:
+          - --with-libdir=lib/x86_64-linux-gnu
+        soap:
+        gd:
+          - --with-gd=shared
+          - --with-jpeg-dir=/usr
+          - --with-png-dir=/usr
+extensions:
+    dev:
+        xhprof: latest
+        xdebug: stable
