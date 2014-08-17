@@ -1,4 +1,4 @@
-virtualVariants:
+variants:
     dev:
         intl:
         cgi:
@@ -28,6 +28,7 @@ virtualVariants:
         curl:
         zip:
         iconv:
+        fpm:
         openssl:
           - --with-libdir=lib/x86_64-linux-gnu
         soap:
@@ -35,6 +36,14 @@ virtualVariants:
           - --with-gd=shared
           - --with-jpeg-dir=/usr
           - --with-png-dir=/usr
+    dbs52:
+        mysql:
+          - --with-mysql=shared,/usr
+          - --with-mysqli=shared,/usr/bin/mysql_config
+          - --with-pdo-mysql=shared,/usr
+        sqlite:
+        pgsql:
+        pdo:
 extensions:
     dev:
         xhprof: latest
