@@ -4,7 +4,7 @@ Including
 
 * Apache
 * MySql
-* Php 5.5, 5.4, 5.3 and 5.2
+* Php 5.5, 5.4, 5.3 and 5.2 including ioncube and zend guard loader / zend optimizer
 * PhpMyAdmin
 * phpbrew
 * Node.js
@@ -22,8 +22,10 @@ docker build -t <yourname>/phpapp https://github.com/GM-Alex/docker-phpapp
 
 ## Run
 ```
-docker run -d --name <containername> -v <yourappfolder>:/var/www:rw <yourname>/phpapp [-privileged]
+docker run -d --name <containername> -e "PHP_VERSION=5.5" -v <yourappfolder>:/var/www:rw <yourname>/phpapp [-privileged]
 ```
+
+You can choose php 5.5, 5.4, 5.3 and 5.2. Default if no env var is given is 5.5.
 
 
 ## SSH user

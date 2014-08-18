@@ -119,22 +119,63 @@ RUN echo "source /root/.phpbrew/bashrc" >> /root/.bashrc
 RUN ln -s /.phpbrew /root/.phpbrew
 #RUN phpbrew lookup-prefix ubuntu
 
-# Install php version
-RUN phpbrew install 5.5 +dev +dbs
-RUN phpbrew ext install --pv 5.5 +dev
-RUN phpbrew install 5.4 +dev +dbs
-RUN phpbrew ext install --pv 5.4 +dev
-RUN phpbrew install 5.3 +dev +dbs
-RUN phpbrew ext install --pv 5.3.28 +dev
-ADD conf/php/php-5.2.patch /tmp/php-5.2.patch
-ADD conf/php/php-5.2-fpm.diff /tmp/php-5.2-fpm.diff
-RUN phpbrew install --old --patch /tmp/php-5.2-fpm.diff --patch /tmp/php-5.2.patch 5.2 +dev +dbs52 +fpm -- --enable-fpm --enable-fastcgi
-RUN phpbrew ext install --pv 5.2 +dev
+# Install different php version
 RUN addgroup nobody
+
+# php 5.5
+RUN phpbrew install 5.5.15 +dev +dbs
+RUN phpbrew ext install --pv 5.5.15 +dev
+
+ADD conf/php/decoder/files/ioncube-php-5.5.so /root/.phpbrew/php/php-5.5.15/lib/php/extensions/ioncube.so
+ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.5.15/var/db/ioncube.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.5\.15\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.5.15/var/db/ioncube.ini
+
+
+# php 5.4
+RUN phpbrew install 5.4.31 +dev +dbs
+RUN phpbrew ext install --pv 5.4.31 +dev
+
+ADD conf/php/decoder/files/ZendGuardLoader-php-5.4.so /root/.phpbrew/php/php-5.4.31/lib/php/extensions/ZendGuardLoader.so
+ADD conf/php/decoder/zendguardloader.ini /root/.phpbrew/php/php-5.4.31/var/db/zendguardloader.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.4\.31\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.4.31/var/db/zendguardloader.ini
+
+ADD conf/php/decoder/files/ioncube-php-5.4.so /root/.phpbrew/php/php-5.4.31/lib/php/extensions/ioncube.so
+ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.4.31/var/db/ioncube.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.4\.31\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.4.31/var/db/ioncube.ini
+
+
+# php 5.3
+RUN phpbrew install 5.3.29 +dev +dbs
+RUN phpbrew ext install --pv 5.3.29 +dev
+
+ADD conf/php/decoder/files/ZendGuardLoader-php-5.3.so /root/.phpbrew/php/php-5.3.29/lib/php/extensions/ZendGuardLoader.so
+ADD conf/php/decoder/zendguardloader.ini /root/.phpbrew/php/php-5.3.29/var/db/zendguardloader.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.3\.29\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.3.29/var/db/zendguardloader.ini
+
+ADD conf/php/decoder/files/ioncube-php-5.3.so /root/.phpbrew/php/php-5.3.29/lib/php/extensions/ioncube.so
+ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.3.29/var/db/ioncube.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.3\.29\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.3.29/var/db/ioncube.ini
+
+
+# php 5.2
+ADD conf/php/php-5.2.17.patch /tmp/php-5.2.17.patch
+ADD conf/php/php-5.2.17-fpm.diff /tmp/php-5.2.17-fpm.diff
+RUN phpbrew install --old --patch /tmp/php-5.2.17-fpm.diff --patch /tmp/php-5.2.17.patch 5.2 +dev +dbs52 +fpm -- --enable-fpm --enable-fastcgi
+RUN phpbrew ext install --pv 5.2.17 +dev
+ADD conf/php/php-fpm.xml /root/.phpbrew/php/php-5.2.17/etc/php-fpm.conf
+
+ADD conf/php/decoder/files/ZendOptimizer-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ZendOptimizer.so
+ADD conf/php/decoder/zendoptimizer.ini /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
+
+ADD conf/php/decoder/files/ioncube-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ioncube.so
+ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
+RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
+
 
 # Add supervisor config
 ADD conf/supervisor/startup.conf /etc/supervisor/conf.d/startup.conf
-ENV PHP_VERSION 5.2
+ENV PHP_VERSION 5.5
 
 ADD conf/scripts/startup.sh /usr/bin/startup_container
 RUN chmod +x /usr/bin/startup_container
