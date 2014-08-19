@@ -42,6 +42,7 @@ ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
 RUN apt-get -qqy install mysql-server mysql-common mysql-client
+RUN ln -s /var/lib/mysql/mysqld.sock /tmp/mysql.sock
 
 # Add latest php version
 RUN add-apt-repository ppa:ondrej/apache2

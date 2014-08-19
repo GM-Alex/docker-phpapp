@@ -1,10 +1,10 @@
-# Php development container
+# PHP development container
 
 Including
 
 * Apache
 * MySql
-* Php 5.5, 5.4, 5.3 and 5.2 including ioncube and zend guard loader / zend optimizer
+* PHP 5.5, 5.4, 5.3 and 5.2 including ioncube and zend guard loader / zend optimizer
 * PhpMyAdmin
 * phpbrew
 * Node.js
@@ -60,4 +60,4 @@ and run
 resolvconf -u
 ```
 
-Now you can access your app via _http://<containername>.phpapp.dev.docker_, nice isn't?
+Now you can access your app via _http://<containername>.phpapp.dev.docker_.
