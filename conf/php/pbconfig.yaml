@@ -29,6 +29,9 @@ variants:
         zip:
         iconv:
         fpm:
+          - --enable-fpm
+          - --with-fpm-user=www-data
+          - --with-fpm-group=www-data
         openssl:
           - --with-libdir=lib/x86_64-linux-gnu
         soap:
@@ -41,6 +44,7 @@ variants:
           - --with-mysql=shared,/usr
           - --with-mysqli=shared,/usr/bin/mysql_config
           - --with-pdo-mysql=shared,/usr
+          - --with-mysql-sock=/run/mysqld/mysqld.sock
         sqlite:
         pgsql:
         pdo:

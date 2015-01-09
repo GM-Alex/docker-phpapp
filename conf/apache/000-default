@@ -1,5 +1,6 @@
 <VirtualHost *:80>
     DocumentRoot /var/www
+    ProxyPassMatch ^/phpmyadmin(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/usr/share/phpmyadmin/$1
     ProxyPassMatch ^/(?!phpmyadmin)(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/var/www/$1
 
     <Directory /var/www/>

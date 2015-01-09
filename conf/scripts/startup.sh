@@ -1,7 +1,6 @@
 #!/bin/bash
 source /root/.phpbrew/bashrc
 
-phpbrew switch ${PHP_VERSION}
-phpbrew fpm start
+phpbrew fpm start php-${PHP_VERSION}
 
 /usr/bin/supervisord -n

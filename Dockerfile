@@ -42,7 +42,7 @@ ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
 RUN apt-get -qqy install mysql-server mysql-common mysql-client
-RUN ln -s /var/lib/mysql/mysqld.sock /tmp/mysql.sock
+RUN ln -s /run/mysqld/mysqld.sock /tmp/mysql.sock
 
 # Add latest php version
 RUN add-apt-repository ppa:ondrej/apache2
@@ -121,7 +121,7 @@ RUN ln -s /.phpbrew /root/.phpbrew
 #RUN phpbrew lookup-prefix ubuntu
 
 # Install different php version
-RUN addgroup nobody
+#RUN addgroup nobody
 
 # php 5.5
 RUN phpbrew install 5.5.15 +dev +dbs
@@ -159,24 +159,27 @@ RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.3\.29\/lib\/php\/extensions\
 
 
 # php 5.2
-ADD conf/php/php-5.2.17.patch /tmp/php-5.2.17.patch
-ADD conf/php/php-5.2.17-fpm.diff /tmp/php-5.2.17-fpm.diff
-RUN phpbrew install --old --patch /tmp/php-5.2.17-fpm.diff --patch /tmp/php-5.2.17.patch 5.2 +dev +dbs52 +fpm -- --enable-fpm --enable-fastcgi
-RUN phpbrew ext install --pv 5.2.17 +dev
-ADD conf/php/php-fpm.xml /root/.phpbrew/php/php-5.2.17/etc/php-fpm.conf
+#ADD conf/php/php-5.2.17.patch /tmp/php-5.2.17.patch
+#ADD conf/php/php-5.2.17-fpm.diff /tmp/php-5.2.17-fpm.diff
+#RUN phpbrew install --old --patch /tmp/php-5.2.17-fpm.diff --patch /tmp/php-5.2.17.patch 5.2 +dev +dbs52 +fpm -- --enable-fpm --enable-fastcgi
+#RUN phpbrew ext install --pv 5.2.17 +dev
+#ADD conf/php/php-fpm.xml /root/.phpbrew/php/php-5.2.17/etc/php-fpm.conf
 
-ADD conf/php/decoder/files/ZendOptimizer-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ZendOptimizer.so
-ADD conf/php/decoder/zendoptimizer.ini /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
-RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
+#ADD conf/php/decoder/files/ZendOptimizer-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ZendOptimizer.so
+#ADD conf/php/decoder/zendoptimizer.ini /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
+#RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/zendoptimizer.ini
 
-ADD conf/php/decoder/files/ioncube-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ioncube.so
-ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
-RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
+#ADD conf/php/decoder/files/ioncube-php-5.2.so /root/.phpbrew/php/php-5.2.17/lib/php/extensions/ioncube.so
+#ADD conf/php/decoder/ioncube.ini /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
+#RUN sed -i "s/<path>/\/root\/\.phpbrew\/php\/php-5\.2\.17\/lib\/php\/extensions\//g" /root/.phpbrew/php/php-5.2.17/var/db/ioncube.ini
 
+# Fix permissions
+#RUN chown nobody:nobody -R /etc/phpmyadmin/
+#RUN chown nobody:nobody -R /var/lib/php5/
 
 # Add supervisor config
 ADD conf/supervisor/startup.conf /etc/supervisor/conf.d/startup.conf
-ENV PHP_VERSION 5.5
+ENV PHP_VERSION 5.4.31
 
 ADD conf/scripts/startup.sh /usr/bin/startup_container
 RUN chmod +x /usr/bin/startup_container
