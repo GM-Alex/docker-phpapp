@@ -16,3 +16,25 @@
     LogLevel warn
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
+
+<VirtualHost *:433>
+    SSLEngine on
+    SSLCertificateFile /root/ssl/local.crt
+    SSLCertificateKeyFile /root/ssl/local.key
+    DocumentRoot /var/www
+    ProxyPassMatch ^/phpmyadmin(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/usr/share/phpmyadmin/$1
+    ProxyPassMatch ^/(?!phpmyadmin)(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/var/www/$1
+
+    <Directory /var/www/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>

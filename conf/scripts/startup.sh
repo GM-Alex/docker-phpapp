@@ -1,6 +1,33 @@
 #!/bin/bash
+if [[ ${PHP_VERSION} == "5.2" ]]; then
+  PHP_VERSION=5.2.17
+elif [[ ${PHP_VERSION} == "5.3" ]]; then
+  PHP_VERSION=5.3.29
+elif [[ ${PHP_VERSION} == "5.4" ]]; then
+  PHP_VERSION=5.4.36
+elif [[ ${PHP_VERSION} == "5.5" ]]; then
+  PHP_VERSION=5.5.20
+elif [[ ${PHP_VERSION} == "5.6" ]]; then
+  PHP_VERSION=5.6.4
+fi
+
 source /root/.phpbrew/bashrc
+
+PHPBREW_PATH="/root/.phpbrew/"
+PHPBREW_PHP_PATH="${PHPBREW_PATH}php/php-${PHP_VERSION}/"
+
+PHP_XDEBUG_INI="${PHPBREW_PHP_PATH}var/db/xdebug.ini"
+
+if [[ ${PHP_XDEBUG} == 0 ]] && [[ -f "${PHP_XDEBUG_INI}" ]]; then
+  mv  ${PHP_XDEBUG_INI} ${PHP_XDEBUG_INI}.disabled
+elif [[ ${PHP_XDEBUG} == 1 ]] && [[ -f "${PHP_XDEBUG_INI}.disabled" ]]; then
+  mv  ${PHP_XDEBUG_INI}.disabled ${PHP_XDEBUG_INI}
+fi
 
 phpbrew fpm start php-${PHP_VERSION}
 
 /usr/bin/supervisord -n
+
+if [[ -d "/var/lib/mysql/default" ]] && [[ -f "/var/www/_project/sql/dump.sql" ]]; then
+  mysql -uroot --max_allowed_packet=1073741824 -f default < /var/www/_project/sql/dump.sql
+fi

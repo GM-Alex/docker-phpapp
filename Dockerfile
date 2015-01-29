@@ -32,12 +32,20 @@ RUN echo 'root:root' | chpasswd
 # Generate a host key before packing.
 RUN service ssh start; service ssh stop
 
+# Create SSL cert
+RUN mkdir /root/ssl; \
+    openssl genrsa -out /root/ssl/local.key 1024; \
+    #openssl req -new -key /root/ssl/local.key -out local.csr -subj "/C=DE/ST=BW/L=FREIBURG/O=Jankowfsky AG/OU=Development/CN=localhost"; \
+    openssl x509 -req -days 365 -in /root/ssl/local.csr -signkey /root/ssl/local.key -out /root/ssl/local.crt
+
 # Apache
 RUN apt-get -qqy install apache2-mpm-prefork apache2-utils
 RUN a2enmod rewrite
 RUN a2enmod proxy_fcgi
+RUN a2enmod ssl
 RUN mkdir /etc/apache2/conf.d/
 RUN echo "ServerName localhost" | tee /etc/apache2/conf.d/fqdn
+RUN echo -e "ServerName localhost" >> /etc/apache2/apache2.conf
 ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
@@ -50,12 +58,6 @@ RUN add-apt-repository ppa:ondrej/php5 && apt-get update
 
 # PHP
 RUN apt-get -qqy install php5-fpm php5 php5-cli php5-mysql php5-curl php5-dev php5-gd php-pear php-apc php5-xdebug libapache2-mod-php5
-
-# Setup xdebug
-RUN echo "xdebug.remote_enable=1" >> /etc/php5/mods-available/xdebug.ini
-RUN echo "xdebug.remote_autostart=0" >> /etc/php5/mods-available/xdebug.ini
-RUN echo "xdebug.remote_connect_back=1" >> /etc/php5/mods-available/xdebug.ini
-RUN echo "xdebug.remote_port=9000" >> /etc/php5/mods-available/xdebug.ini
 
 # PhpMyAdmin
 RUN mysqld & \
@@ -142,6 +144,7 @@ RUN install_php 5.3.29
 # Add supervisor config
 ADD conf/supervisor/startup.conf /etc/supervisor/conf.d/startup.conf
 ENV PHP_VERSION 5.4.36
+ENV PHP_XDEBUG 0
 
 ADD conf/scripts/startup.sh /usr/bin/startup_container
 RUN chmod +x /usr/bin/startup_container
@@ -152,6 +155,6 @@ RUN apt-get clean -y; \
     apt-get autoremove -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-EXPOSE 22 80 3306
+EXPOSE 22 80 443 3306
 
 CMD ["/bin/bash", "/usr/bin/startup_container"]

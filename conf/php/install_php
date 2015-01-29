@@ -19,21 +19,28 @@ rm -R /root/.phpbrew/build/php-${PHP_VERSION}
 declare -a module_list=('ioncube' 'zendguardloader' 'zendoptimizer')
 
 for module_name in "${module_list[@]}"; do
-  full_module_name=${PHPBREW_MODULE_PATH}${module_name}
-  destination_file=${PHPBREW_PHP_PATH}lib/php/extensions/${module_name}.so
+  full_module_name="${PHPBREW_MODULE_PATH}${module_name}"
+  destination_file="${PHPBREW_PHP_PATH}lib/php/extensions/${module_name}.so"
 
-  if [[ -f ${full_module_name}.so ]] || [[ -f ${full_module_name}-php-${PHP_SHORT_VERSION}.so ]]; then
-    if [[ -f ${full_module_name}.so ]]; then
-      source_file=${full_module_name}.so
-    elif [[ -f ${full_module_name}-php-${PHP_SHORT_VERSION}.so ]]; then
-      source_file=${full_module_name}-php-${PHP_SHORT_VERSION}.so
+  if [[ -f "${full_module_name}.so" ]] || [[ -f "${full_module_name}-php-${PHP_SHORT_VERSION}.so" ]]; then
+    if [[ -f "${full_module_name}.so" ]]; then
+      source_file="${full_module_name}.so"
+    elif [[ -f "${full_module_name}-php-${PHP_SHORT_VERSION}.so" ]]; then
+      source_file="${full_module_name}-php-${PHP_SHORT_VERSION}.so"
     fi
 
     cp ${source_file} ${destination_file}
 
-    ini_file=${PHPBREW_PHP_PATH}var/db/${module_name}.ini
+    ini_file="${PHPBREW_PHP_PATH}var/db/${module_name}.ini"
     cp ${full_module_name}.ini ${ini_file}
 
     sed -i "s|<file>|${destination_file}|g" ${ini_file}
   fi
 done
+
+if [[ -f "${PHP_PHP_PATH}var/db/xdebug.ini" ]]
+  echo "xdebug.remote_enable=1" >> ${PHP_PHP_PATH}/var/db/xdebug.ini
+  echo "xdebug.remote_autostart=0" >> ${PHP_PHP_PATH}/var/db/xdebug.ini
+  echo "xdebug.remote_connect_back=1" >> ${PHP_PHP_PATH}/var/db/xdebug.ini
+  echo "xdebug.remote_port=9000" >> ${PHP_PHP_PATH}/var/db/xdebug.ini
+fi
