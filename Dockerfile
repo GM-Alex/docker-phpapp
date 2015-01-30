@@ -35,7 +35,7 @@ RUN service ssh start; service ssh stop
 # Create SSL cert
 RUN mkdir /root/ssl; \
     openssl genrsa -out /root/ssl/local.key 1024; \
-    #openssl req -new -key /root/ssl/local.key -out local.csr -subj "/C=DE/ST=BW/L=FREIBURG/O=Jankowfsky AG/OU=Development/CN=localhost"; \
+    openssl req -new -key /root/ssl/local.key -out /root/ssl/local.csr -subj "/C=DE/ST=BW/L=FREIBURG/O=Jankowfsky AG/OU=Development/CN=localhost"; \
     openssl x509 -req -days 365 -in /root/ssl/local.csr -signkey /root/ssl/local.key -out /root/ssl/local.crt
 
 # Apache
@@ -45,7 +45,7 @@ RUN a2enmod proxy_fcgi
 RUN a2enmod ssl
 RUN mkdir /etc/apache2/conf.d/
 RUN echo "ServerName localhost" | tee /etc/apache2/conf.d/fqdn
-RUN echo -e "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 ADD conf/apache/000-default /etc/apache2/sites-enabled/000-default.conf
 
 # Mysql
@@ -110,7 +110,7 @@ RUN apt-get install -y php5 php5-dev php-pear autoconf automake curl build-essen
     libmhash2 libmhash-dev \
     libmcrypt4 libmcrypt-dev \
     libpcre3-dev libpcre++-dev
-RUN wget  http://launchpadlibrarian.net/121520545/libbison-dev_2.6.2.dfsg-1_amd64.deb && dpkg -i libbison-dev_2.6.2.dfsg-1_amd64.deb
+RUN wget http://launchpadlibrarian.net/121520545/libbison-dev_2.6.2.dfsg-1_amd64.deb && dpkg -i libbison-dev_2.6.2.dfsg-1_amd64.deb
 RUN wget http://launchpadlibrarian.net/121520544/bison_2.6.2.dfsg-1_amd64.deb && dpkg -i bison_2.6.2.dfsg-1_amd64.deb
 ADD conf/php/phpbrew /usr/bin/phpbrew
 RUN chmod +x /usr/bin/phpbrew

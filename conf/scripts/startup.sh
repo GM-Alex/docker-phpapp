@@ -26,8 +26,11 @@ fi
 
 phpbrew fpm start php-${PHP_VERSION}
 
-/usr/bin/supervisord -n
-
-if [[ -d "/var/lib/mysql/default" ]] && [[ -f "/var/www/_project/sql/dump.sql" ]]; then
-  mysql -uroot --max_allowed_packet=1073741824 -f default < /var/www/_project/sql/dump.sql
+if ! [[ -d "/var/lib/mysql/app" ]] && [[ -f "/var/www/_project/sql/dump.sql" ]]; then
+  service mysql start
+  mysql -uroot -e "create database app;"
+  mysql -uroot --max_allowed_packet=1073741824 -f app < /var/www/_project/sql/dump.sql
+  service mysql stop
 fi
+
+/usr/bin/supervisord -n

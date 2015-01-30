@@ -17,7 +17,7 @@
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 
-<VirtualHost *:433>
+<VirtualHost *:443>
     SSLEngine on
     SSLCertificateFile /root/ssl/local.crt
     SSLCertificateKeyFile /root/ssl/local.key
