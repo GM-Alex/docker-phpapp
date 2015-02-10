@@ -9,7 +9,7 @@ RUN apt-get update
 
 # Setup system and install tools
 RUN echo "initscripts hold" | dpkg --set-selections
-RUN apt-get -qqy install libreadline-gplv2-dev libfreetype6 apt-utils dialog sendmail-bin sendmail
+RUN apt-get -qqy install libreadline-gplv2-dev libfreetype6 apt-utils dialog postfix
 RUN echo "Europe/Berlin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 RUN echo 'alias ll="ls -lah --color=auto"' >> /etc/bash.bashrc
 RUN apt-get -qqy install passwd supervisor git-core sudo unzip wget curl libfile-slurp-perl libmysql-diff-perl vim net-tools software-properties-common python-software-properties
@@ -77,7 +77,8 @@ RUN apt-get -qqy install ant
 RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
 
 # Install phpunit
-RUN composer global require "phpunit/phpunit=4.1.*"
+RUN composer global require "phpunit/phpunit=4.1.*"; \
+    ln -s /root/.composer/vendor/bin/phpunit /usr/bin/phpunit
 
 # Install ruby
 RUN apt-get -y install ruby
@@ -143,8 +144,9 @@ RUN install_php 5.3.29
 
 # Add supervisor config
 ADD conf/supervisor/startup.conf /etc/supervisor/conf.d/startup.conf
-ENV PHP_VERSION 5.4.36
+ENV PHP_VERSION 5.6.4
 ENV PHP_XDEBUG 0
+ENV SQL_DIR /var/www/_sql
 
 ADD conf/scripts/startup.sh /usr/bin/startup_container
 RUN chmod +x /usr/bin/startup_container

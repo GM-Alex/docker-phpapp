@@ -7,6 +7,7 @@ Including
 * PHP 5.6, 5.5, 5.4, 5.3 and 5.2 including ioncube and zend guard loader / zend optimizer
 * PhpMyAdmin
 * phpbrew
+* phpunit
 * Node.js
 * Sass
 * Bower
@@ -16,7 +17,7 @@ Including
 
 ## Build
 ```
-docker build -t <yourname>/phpapp https://github.com/GM-Alex/docker-phpapp
+docker build -t <yourname>/phpapp .
 ```
 
 
@@ -47,13 +48,10 @@ Add the following to your docker config at _/etc/default/docker_ (some times _/e
 DOCKER_OPTS="-d --bip=172.17.42.1/16 --dns=172.17.42.1 --dns=8.8.8.8"
 ```
 
-Clone the following repository
+Clone the following repository and follow the instructions of the repository to get the container running
 
 ```
-docker pull crosbymichael/skydns
-docker run -d -p 172.17.42.1:53:53/udp --name skydns crosbymichael/skydns -nameserver 8.8.8.8:53 -domain docker
-docker pull crosbymichael/skydock
-docker run -d -v /var/run/docker.sock:/docker.sock --name skydock crosbymichael/skydock -ttl 30 -environment dev -s /docker.sock -domain docker -name skydns
+git clone https://github.com/bnfinet/docker-dns.git
 ```
 
 ## DNS Setup for ubuntu
