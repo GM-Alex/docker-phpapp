@@ -157,6 +157,6 @@ RUN apt-get clean -y; \
     apt-get autoremove -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-EXPOSE 22 80 443 3306
+EXPOSE 22 80 443 3306 9000
 
 CMD ["/bin/bash", "/usr/bin/startup_container"]

@@ -30,7 +30,7 @@ if ! [[ -d "/var/lib/mysql/app" ]] && [[ -d "${SQL_DIR}" ]]; then
   service mysql start
   mysql -uroot -e "create database app;"
 
-  for file in ${SQL_DIR}*.sql; do
+  for file in ${SQL_DIR}/*.sql; do
     if [[ -f "${file}" ]]; then
       mysql -uroot --max_allowed_packet=1073741824 -f app < ${file}
     fi

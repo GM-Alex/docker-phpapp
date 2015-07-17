@@ -36,7 +36,8 @@ variants:
           - --with-libdir=lib/x86_64-linux-gnu
         soap:
         gd:
-          - --with-gd=shared
+          - --with-zlib-dir
+          - --with-gd
           - --with-jpeg-dir=/usr
           - --with-png-dir=/usr
     dbs52:
@@ -51,4 +52,4 @@ variants:
 extensions:
     dev:
         xhprof: latest
-        xdebug: stable
+        xdebug: 2.2.7
