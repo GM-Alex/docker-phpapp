@@ -53,3 +53,4 @@ extensions:
     dev:
         xhprof: latest
         xdebug: 2.2.7
+        memcache: latest

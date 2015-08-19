@@ -123,9 +123,13 @@ RUN ln -s /.phpbrew /root/.phpbrew
 ADD conf/php/install_php /usr/bin/install_php
 RUN chmod +x /usr/bin/install_php
 
+# Install tideways daemon
+ADD conf/php/tideways-daemon /root/tideways-daemon
+RUN chmod +x /root/tideways-daemon/install.sh
+RUN /root/tideways-daemon/install.sh
 
 # Install different php version
-ADD conf/php/decoder /root/.phpbrew/modules
+ADD conf/php/modules /root/.phpbrew/modules
 
 # php 5.6
 RUN install_php 5.6.4
@@ -134,13 +138,10 @@ RUN install_php 5.6.4
 RUN install_php 5.5.20
 
 # php 5.4
-RUN install_php 5.4.36
+RUN install_php 5.4.40
 
 # php 5.3
 RUN install_php 5.3.29
-
-# php 5.2
-#RUN install_php 5.2.17
 
 # Add supervisor config
 ADD conf/supervisor/startup.conf /etc/supervisor/conf.d/startup.conf
@@ -157,6 +158,7 @@ RUN apt-get clean -y; \
     apt-get autoremove -y; \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+VOLUME /var/www
 EXPOSE 22 80 443 3306 9000
 
 CMD ["/bin/bash", "/usr/bin/startup_container"]

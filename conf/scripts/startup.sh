@@ -4,7 +4,7 @@ if [[ ${PHP_VERSION} == "5.2" ]]; then
 elif [[ ${PHP_VERSION} == "5.3" ]]; then
   PHP_VERSION=5.3.29
 elif [[ ${PHP_VERSION} == "5.4" ]]; then
-  PHP_VERSION=5.4.36
+  PHP_VERSION=5.4.40
 elif [[ ${PHP_VERSION} == "5.5" ]]; then
   PHP_VERSION=5.5.20
 elif [[ ${PHP_VERSION} == "5.6" ]]; then
@@ -32,7 +32,9 @@ if ! [[ -d "/var/lib/mysql/app" ]] && [[ -d "${SQL_DIR}" ]]; then
 
   for file in ${SQL_DIR}/*.sql; do
     if [[ -f "${file}" ]]; then
+      echo "Importing ${file}..."
       mysql -uroot --max_allowed_packet=1073741824 -f app < ${file}
+      echo "Import of ${file} done!"
     fi
   done
 

@@ -13,6 +13,7 @@ Including
 * Bower
 * Grunt
 * Gulp
+* Tideways profiler
 
 
 ## Build

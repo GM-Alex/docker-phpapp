@@ -16,7 +16,7 @@ phpbrew install ${PHP_VERSION} +dev +dbs
 phpbrew ext install --pv ${PHP_VERSION} +dev
 rm -R /root/.phpbrew/build/php-${PHP_VERSION}
 
-declare -a module_list=('ioncube' 'zendguardloader' 'zendoptimizer')
+declare -a module_list=('ioncube' 'zendguardloader' 'zendoptimizer', 'tideways')
 
 for module_name in "${module_list[@]}"; do
   full_module_name="${PHPBREW_MODULE_PATH}${module_name}"
@@ -35,10 +35,16 @@ for module_name in "${module_list[@]}"; do
     cp ${full_module_name}.ini ${ini_file}
 
     sed -i "s|<file>|${destination_file}|g" ${ini_file}
+
+    if [[ ${module_name} == "tideways" ]]; then
+      php_file="${PHPBREW_PHP_PATH}lib/php/extensions/Tideways.php"
+      cp ${PHPBREW_MODULE_PATH}Tideways.php ${php_file}
+    fi
   fi
 done
 
 if [[ -f "${PHPBREW_PHP_PATH}var/db/xdebug.ini" ]]; then
+  echo $'\n' >> ${PHPBREW_PHP_PATH}/var/db/xdebug.ini
   echo "xdebug.remote_enable=1" >> ${PHPBREW_PHP_PATH}/var/db/xdebug.ini
   echo "xdebug.remote_autostart=0" >> ${PHPBREW_PHP_PATH}/var/db/xdebug.ini
   echo "xdebug.remote_connect_back=1" >> ${PHPBREW_PHP_PATH}/var/db/xdebug.ini
