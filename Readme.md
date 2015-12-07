@@ -4,7 +4,7 @@ Including
 
 * Apache
 * MySql
-* PHP 5.6, 5.5, 5.4, 5.3 and 5.2 including ioncube and zend guard loader / zend optimizer
+* PHP 5.6, 5.5, 5.4 and 5.3 including ioncube and zend guard loader / zend optimizer
 * PhpMyAdmin
 * phpbrew
 * phpunit
