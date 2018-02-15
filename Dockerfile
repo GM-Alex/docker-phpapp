@@ -54,7 +54,7 @@ RUN ln -s /run/mysqld/mysqld.sock /tmp/mysql.sock
 
 # Add latest php version
 RUN add-apt-repository ppa:ondrej/apache2
-RUN add-apt-repository ppa:ondrej/php5 && apt-get update
+RUN add-apt-repository ppa:ondrej/php && apt-get update
 
 # PHP
 RUN apt-get -qqy install php5-fpm php5 php5-cli php5-mysql php5-curl php5-dev php5-gd php-pear php-apc php5-xdebug libapache2-mod-php5
